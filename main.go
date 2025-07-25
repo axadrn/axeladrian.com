@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/a-h/templ"
-	"github.com/axzilla/axeladrian/assets"
-	"github.com/axzilla/axeladrian/ui/pages"
+	"github.com/axadrn/axeladrian/assets"
+	"github.com/axadrn/axeladrian/ui/pages"
 	"github.com/joho/godotenv"
 )
 

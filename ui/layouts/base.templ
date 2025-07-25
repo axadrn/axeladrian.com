@@ -1,62 +1,29 @@
 package layouts
 
 import (
-	"github.com/axzilla/axeladrian/ui/modules"
-	"github.com/axzilla/templui/pkg/helpers"
+	"github.com/axadrn/axeladrian/ui/modules"
 )
-
-templ ThemeSwitcherScript() {
-	{{ handle := templ.NewOnceHandle() }}
-	@handle.Once() {
-		<script nonce={ templ.GetNonce(ctx) }>
-			// Initial theme setup
-			document.documentElement.classList.toggle('dark', localStorage.getItem('appTheme') === 'dark');
-
-			document.addEventListener('alpine:init', () => {
-				Alpine.data('themeHandler', () => ({
-					isDark: localStorage.getItem('appTheme') === 'dark',
-					themeClasses() {
-						return this.isDark ? 'text-white' : 'bg-white text-black'
-					},
-					toggleTheme() {
-						this.isDark = !this.isDark;
-						localStorage.setItem('appTheme', this.isDark ? 'dark' : 'light');
-						document.documentElement.classList.toggle('dark', this.isDark);
-					}
-				}))
-			})
-		</script>
-	}
-}
 
 templ BaseLayout() {
 	<!DOCTYPE html>
-	<html lang="en" class="h-full dark">
+	<html lang="en">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<!-- Tailwind CSS (output) -->
 			<link href="/assets/css/output.css" rel="stylesheet"/>
-			<!-- Alpine.js CSP-compliant script -->
-			@helpers.AlpineJS()
-			<!-- Component scripts -->
-			@helpers.ComponentScripts()
-			<!-- Theme switcher script -->
-			@ThemeSwitcherScript()
-			<link rel="preconnect" href="https://fonts.googleapis.com"/>
-			<!-- Preconnect to Google Fonts -->
-			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-			<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+			// Custom CSS
+			<link href="/assets/css/themes.css" rel="stylesheet"/>
 			<!-- Plausible -->
 			<script defer data-domain="axeladrian.com" src="https://plausible.axeladrian.com/js/script.js"></script>
+			// Preload fonts to prevent flickering
+			<link rel="preload" href="/assets/fonts/geist/geist-variable.woff2" as="font" type="font/woff2" crossorigin="anonymous"/>
+			<link rel="preload" href="/assets/fonts/geist/geist-mono-variable.woff2" as="font" type="font/woff2" crossorigin="anonymous"/>
 		</head>
-		<body
-			x-data="themeHandler"
-			x-bind:class="themeClasses"
-		>
+		<body>
 			{ children... }
 			<div class="fixed bottom-4 right-4">
-				@modules.ThemeSwitcher(modules.ThemeSwitcherProps{})
+				@modules.ThemeSwitcher()
 			</div>
 		</body>
 	</html>

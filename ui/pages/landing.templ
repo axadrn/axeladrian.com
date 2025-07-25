@@ -1,6 +1,6 @@
 package pages
 
-import "github.com/axzilla/axeladrian/ui/layouts"
+import "github.com/axadrn/axeladrian/ui/layouts"
 
 templ Landing() {
 	@layouts.BaseLayout() {
@@ -9,37 +9,32 @@ templ Landing() {
 }
 
 templ AboutSection() {
-	<section class="min-h-screen py-20 px-4 bg-muted/50 flex items-center justify-center">
+	<section class="min-h-screen py-20 px-4 flex items-center justify-center">
 		<div class="max-w-2xl mx-auto">
-			<img src="/assets/img/me.png" alt="Axel Adrian" class="w-32 h-32 rounded-full mb-4"/>
-			<h2 class="text-2xl font-semibold mb-2 font-jetbrains tracking-tight">Hi, I'm Axel!</h2>
-			<div class="mb-6 font-jetbrains text-sm text-gray-600 dark:text-gray-400">
-				<span class="font-bold">Ax•el</span> /ˈaksəl/ noun:
-				<br/>
-				1. Developer and problem solver, typically found deep in Go code
-				<br/>
-				2. Open source enthusiast building cool stuff
+			<div class="flex flex-col gap-3 font-mono">
+				<img src="/assets/img/me.png" width="100" alt="Axel Adrian" class="profile-img"/>
+				<div class="definition">
+					<strong>Axel Adrian</strong>
+				</div>
+				<p>
+					JS/TS, React, Svelte, Vue, Node, Flutter, Go, SQL, NoSQL 
+					<br/>
+					└─ Shipped it. Broke it. Fixed it.
+				</p>
+				<p>
+					Now: Go, open source, infra.
+					<a class="underline underline-offset-4 hover:text-rose-500" href="https://templui.io" target="_blank">templui.io</a> &amp;
+					<a class="underline underline-offset-4 hover:text-rose-500" href="https://deeploy.sh" target="_blank">deeploy.sh</a>.
+				</p>
+				<p>Building from anywhere. Ping me if you want something real.</p>
+				<p class="flex gap-2 text-primary">
+					<a class="underline underline-offset-4 hover:text-rose-500" href="mailto:hello@axeladrian.com">mail</a>
+					<span>/</span>
+					<a class="underline underline-offset-4 hover:text-rose-500" href="https://github.com/axadrn" target="_blank">github</a>
+					<span>/</span>
+					<a class="underline underline-offset-4 hover:text-rose-500" href="https://x.com/axadrn" target="_blank">x</a>
+				</p>
 			</div>
-			<p class="mb-6 font-jetbrains leading-relaxed text-md text-gray-800 dark:text-gray-200">
-				I've worked with various tools like JS/TS, React/Next.js, Svelte/SvelteKit, Vue.js, Node.js, Flutter, Go, 
-				PostgreSQL, SQLite, and MongoDB. These days, I'm deep into Go development.
-			</p>
-			<p class="mb-6 font-jetbrains leading-relaxed text-md text-gray-800 dark:text-gray-200">
-				Currently focused on open source, building 
-				<a href="https://templui.io" target="_blank" class="text-primary font-medium hover:underline hover:underline-offset-4">templui.io</a>
-				(a UI library for Go and Templ) and
-				<a href="https://deeploy.sh" target="_blank" class="text-primary font-medium hover:underline hover:underline-offset-4">deeploy.sh</a>
-				(a self-hosted deployment platform). I enjoy creating backend systems and working with infrastructure.
-			</p>
-			<p class="mb-8 font-jetbrains leading-relaxed text-md text-gray-800 dark:text-gray-200">
-				Originally from Germany, coding my way around the world. Got an interesting project in mind? Let's chat!
-			</p>
-			<p class="font-jetbrains text-md leading-relaxed">
-				<a href="mailto:hello@axeladrian.com" class="text-primary font-medium hover:underline hover:underline-offset-4">email</a> /
-				<a href="https://github.com/axzilla" class="text-primary font-medium hover:underline hover:underline-offset-4" target="_blank">github</a> /
-				<a href="https://x.com/axadrn" class="text-primary font-medium hover:underline hover:underline-offset-4" target="_blank">x</a> /
-				<a href="https://github.com/axzilla/cv/blob/main/README.md" class="text-primary font-medium hover:underline hover:underline-offset-4" target="_blank">cv</a>
-			</p>
 		</div>
 	</section>
 }
