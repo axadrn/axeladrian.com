@@ -45,22 +45,55 @@ func InitDotEnv() {
 }
 
 func SetupAssetsRoutes(mux *http.ServeMux) {
-	var isDevelopment = os.Getenv("GO_ENV") != "production"
+	isDev := os.Getenv("GO_ENV") != "production"
 
-	assetHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if isDevelopment {
+	// Main assets route
+	var fs http.Handler
+	if isDev {
+		fs = http.FileServer(http.Dir("./assets"))
+	} else {
+		fs = http.FileServer(http.FS(assets.Assets))
+	}
+	
+	mux.Handle("GET /assets/", http.StripPrefix("/assets/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if isDev {
 			w.Header().Set("Cache-Control", "no-store")
 		}
-
-		var fs http.Handler
-		if isDevelopment {
-			fs = http.FileServer(http.Dir("./assets"))
-		} else {
-			fs = http.FileServer(http.FS(assets.Assets))
-		}
-
 		fs.ServeHTTP(w, r)
-	})
+	})))
 
-	mux.Handle("GET /assets/", http.StripPrefix("/assets/", assetHandler))
+	// Favicon routes for Safari compatibility
+	favicons := map[string]string{
+		"/favicon.ico":          "img/favicon/favicon.ico",
+		"/apple-touch-icon.png": "img/favicon/apple-touch-icon.png",
+		"/favicon-32x32.png":    "img/favicon/favicon-32x32.png",
+		"/favicon-16x16.png":    "img/favicon/favicon-16x16.png",
+	}
+
+	for route, path := range favicons {
+		mux.HandleFunc("GET "+route, serveFavicon(path, isDev))
+	}
+}
+
+func serveFavicon(path string, isDev bool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Set content type
+		if strings.HasSuffix(path, ".ico") {
+			w.Header().Set("Content-Type", "image/x-icon")
+		} else {
+			w.Header().Set("Content-Type", "image/png")
+		}
+		
+		if isDev {
+			w.Header().Set("Cache-Control", "no-store")
+			http.ServeFile(w, r, "./assets/"+path)
+		} else {
+			content, err := assets.Assets.ReadFile(path)
+			if err != nil {
+				http.Error(w, "Favicon not found", http.StatusNotFound)
+				return
+			}
+			w.Write(content)
+		}
+	}
 }
