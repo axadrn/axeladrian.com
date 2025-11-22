@@ -86,6 +86,11 @@ templ ThemeSwitcher(props ...ThemeSwitcherProps) {
 			"data-theme-switcher": "true",
 		},
 	}) {
-		@icon.Eclipse(icon.Props{Size: 20})
+		<span class="dark:hidden">
+			@icon.Moon()
+		</span>
+		<span class="hidden dark:block">
+			@icon.Sun()
+		</span>
 	}
 }
