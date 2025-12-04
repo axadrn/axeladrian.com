@@ -2,5 +2,5 @@ package content
 
 import "embed"
 
-//go:embed blog/*
+//go:embed blog
 var Content embed.FS

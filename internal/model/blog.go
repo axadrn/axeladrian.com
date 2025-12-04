@@ -8,6 +8,7 @@ type BlogPost struct {
 	Date        time.Time
 	Author      string
 	Description string
+	Image       string
 	Tags        []string
 	Content     string
 	HTMLContent string

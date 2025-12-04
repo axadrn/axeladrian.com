@@ -72,6 +72,9 @@ func (s *BlogService) Post(slug string) (*model.BlogPost, error) {
 	if description, ok := meta["description"].(string); ok {
 		post.Description = description
 	}
+	if image, ok := meta["image"].(string); ok {
+		post.Image = image
+	}
 	if dateStr, ok := meta["date"].(string); ok {
 		if date, err := time.Parse("2006-01-02", dateStr); err == nil {
 			post.Date = date

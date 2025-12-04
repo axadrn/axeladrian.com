@@ -10,7 +10,9 @@ import (
 	"github.com/a-h/templ"
 	"github.com/axadrn/axeladrian/assets"
 	"github.com/axadrn/axeladrian/content"
+	"github.com/axadrn/axeladrian/internal/config"
 	"github.com/axadrn/axeladrian/internal/handler"
+	"github.com/axadrn/axeladrian/internal/middleware"
 	"github.com/axadrn/axeladrian/internal/service"
 	"github.com/axadrn/axeladrian/ui/pages"
 	"github.com/joho/godotenv"
@@ -18,11 +20,11 @@ import (
 
 func main() {
 	InitDotEnv()
-	isDev := os.Getenv("GO_ENV") != "production"
+	cfg := config.Load()
 
 	// Content FS
 	var contentFS fs.FS
-	if isDev {
+	if cfg.IsDev() {
 		contentFS = os.DirFS("content")
 	} else {
 		contentFS = content.Content
@@ -33,13 +35,13 @@ func main() {
 
 	// Handlers
 	blogHandler := handler.NewBlogHandler(blogService)
-	newsletterHandler := handler.NewNewsletterHandler()
-	seoHandler := handler.NewSEOHandler(blogService, "https://axeladrian.com")
+	newsletterHandler := handler.NewNewsletterHandler(cfg)
+	seoHandler := handler.NewSEOHandler(blogService, cfg.AppURL)
 
 	mux := http.NewServeMux()
 
 	// Assets
-	SetupAssetsRoutes(mux)
+	SetupAssetsRoutes(mux, cfg)
 
 	// Pages
 	mux.Handle("GET /", templ.Handler(pages.Landing()))
@@ -54,8 +56,11 @@ func main() {
 	mux.HandleFunc("GET /robots.txt", seoHandler.Robots)
 	mux.HandleFunc("GET /sitemap.xml", seoHandler.Sitemap)
 
+	// Apply middleware
+	handler := middleware.WithConfig(cfg)(mux)
+
 	fmt.Println("Server is running on http://localhost:8090")
-	http.ListenAndServe(":8090", mux)
+	http.ListenAndServe(":8090", handler)
 }
 
 func InitDotEnv() {
@@ -65,8 +70,8 @@ func InitDotEnv() {
 	}
 }
 
-func SetupAssetsRoutes(mux *http.ServeMux) {
-	isDev := os.Getenv("GO_ENV") != "production"
+func SetupAssetsRoutes(mux *http.ServeMux, cfg *config.Config) {
+	isDev := cfg.IsDev()
 
 	var fsHandler http.Handler
 	if isDev {

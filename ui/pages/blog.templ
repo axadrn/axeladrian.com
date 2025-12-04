@@ -8,7 +8,11 @@ import (
 )
 
 templ BlogList(posts []*model.BlogPost) {
-	@layouts.BaseLayout() {
+	@layouts.BaseLayout(layouts.SEOProps{
+		Title:       "Blog",
+		Description: "Thoughts on software, startups, and life.",
+		Path:        "/blog",
+	}) {
 		<main class="min-h-screen py-20 px-4">
 			<div class="max-w-2xl mx-auto">
 				<div class="mb-12">
@@ -30,7 +34,11 @@ templ BlogList(posts []*model.BlogPost) {
 }
 
 templ BlogListByTag(posts []*model.BlogPost, tag string) {
-	@layouts.BaseLayout() {
+	@layouts.BaseLayout(layouts.SEOProps{
+		Title:       "Posts tagged: " + tag,
+		Description: "Blog posts tagged with " + tag,
+		Path:        "/blog/tag/" + tag,
+	}) {
 		<main class="min-h-screen py-20 px-4">
 			<div class="max-w-2xl mx-auto">
 				<div class="mb-12">
@@ -74,7 +82,12 @@ templ postCard(post *model.BlogPost) {
 }
 
 templ BlogPost(post *model.BlogPost) {
-	@layouts.BaseLayout() {
+	@layouts.BaseLayout(layouts.SEOProps{
+		Title:       post.Title,
+		Description: post.Description,
+		Path:        "/blog/" + post.Slug,
+		Image:       post.Image,
+	}) {
 		<main class="min-h-screen py-20 px-4">
 			<article class="max-w-2xl mx-auto">
 				<div class="mb-8">

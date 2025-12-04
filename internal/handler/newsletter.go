@@ -4,14 +4,17 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"os"
 	"regexp"
+
+	"github.com/axadrn/axeladrian/internal/config"
 )
 
-type NewsletterHandler struct{}
+type NewsletterHandler struct {
+	cfg *config.Config
+}
 
-func NewNewsletterHandler() *NewsletterHandler {
-	return &NewsletterHandler{}
+func NewNewsletterHandler(cfg *config.Config) *NewsletterHandler {
+	return &NewsletterHandler{cfg: cfg}
 }
 
 type subscribeRequest struct {
@@ -38,8 +41,8 @@ func (h *NewsletterHandler) Subscribe(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Add to Resend audience
-	apiKey := os.Getenv("RESEND_API_KEY")
-	audienceID := os.Getenv("RESEND_AUDIENCE_ID")
+	apiKey := h.cfg.ResendAPIKey
+	audienceID := h.cfg.ResendAudienceID
 
 	if apiKey == "" || audienceID == "" {
 		json.NewEncoder(w).Encode(subscribeResponse{Error: "Newsletter not configured"})

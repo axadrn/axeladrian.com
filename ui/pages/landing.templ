@@ -7,7 +7,9 @@ import (
 )
 
 templ Landing() {
-	@layouts.BaseLayout() {
+	@layouts.BaseLayout(layouts.SEOProps{
+		Path: "/",
+	}) {
 		@AboutSection()
 	}
 }

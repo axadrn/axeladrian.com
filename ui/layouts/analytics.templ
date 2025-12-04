@@ -1,0 +1,31 @@
+package layouts
+
+import "github.com/axadrn/axeladrian/internal/ctxkeys"
+
+templ Analytics() {
+	{{ cfg := ctxkeys.Config(ctx) }}
+	if cfg != nil && cfg.UmamiWebsiteID != "" {
+		@Umami()
+	}
+	if cfg != nil && cfg.PlausibleDomain != "" {
+		@Plausible()
+	}
+}
+
+templ Umami() {
+	{{ cfg := ctxkeys.Config(ctx) }}
+	{{ host := cfg.UmamiHost }}
+	if host == "" {
+		{{ host = "cloud.umami.is" }}
+	}
+	<script defer src={ "https://" + host + "/script.js" } data-website-id={ cfg.UmamiWebsiteID }></script>
+}
+
+templ Plausible() {
+	{{ cfg := ctxkeys.Config(ctx) }}
+	{{ host := cfg.PlausibleHost }}
+	if host == "" {
+		{{ host = "plausible.io" }}
+	}
+	<script defer data-domain={ cfg.PlausibleDomain } src={ "https://" + host + "/js/script.js" }></script>
+}

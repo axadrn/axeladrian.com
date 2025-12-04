@@ -1,29 +1,44 @@
 package layouts
 
 import (
+	"github.com/axadrn/axeladrian/internal/ctxkeys"
 	"github.com/axadrn/axeladrian/ui/modules"
 )
 
-templ BaseLayout() {
+type SEOProps struct {
+	Title       string
+	Description string
+	Path        string
+	Image       string
+}
+
+templ BaseLayout(props ...SEOProps) {
+	{{ cfg := ctxkeys.Config(ctx) }}
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			if len(props) > 0 {
+				@seo(props[0])
+			} else if cfg != nil {
+				<title>{ cfg.AppName }</title>
+			} else {
+				<title>Axel Adrian</title>
+			}
 			<!-- Favicons -->
 			<link rel="icon" type="image/x-icon" href="/favicon.ico"/>
 			<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
 			<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
 			<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
-			<!-- Tailwind CSS (output) -->
+			<!-- CSS -->
 			<link href="/assets/css/output.css" rel="stylesheet"/>
-			// Custom CSS
 			<link href="/assets/css/themes.css" rel="stylesheet"/>
-			<!-- Plausible -->
-			<script defer data-domain="axeladrian.com" src="https://plausible.axeladrian.com/js/script.js"></script>
-			// Preload fonts to prevent flickering
+			<!-- Fonts -->
 			<link rel="preload" href="/assets/fonts/geist/geist-variable.woff2" as="font" type="font/woff2" crossorigin="anonymous"/>
 			<link rel="preload" href="/assets/fonts/geist/geist-mono-variable.woff2" as="font" type="font/woff2" crossorigin="anonymous"/>
+			<!-- Analytics -->
+			@Analytics()
 		</head>
 		<body>
 			{ children... }
@@ -32,4 +47,54 @@ templ BaseLayout() {
 			</div>
 		</body>
 	</html>
+}
+
+templ seo(props SEOProps) {
+	{{ cfg := ctxkeys.Config(ctx) }}
+	{{ appName := "Axel Adrian" }}
+	{{ appTagline := "I do stuff." }}
+	{{ baseURL := "https://axeladrian.com" }}
+	if cfg != nil {
+		{{ appName = cfg.AppName }}
+		{{ appTagline = cfg.AppTagline }}
+		{{ baseURL = cfg.AppURL }}
+	}
+	{{ fullTitle := props.Title }}
+	if props.Title != "" && props.Title != appName {
+		{{ fullTitle = props.Title + " - " + appName }}
+	}
+	if fullTitle == "" {
+		{{ fullTitle = appName }}
+	}
+	{{ description := props.Description }}
+	if description == "" {
+		{{ description = appTagline }}
+	}
+	{{ image := props.Image }}
+	if image == "" {
+		{{ image = baseURL + "/assets/img/og.png" }}
+	}
+	<title>{ fullTitle }</title>
+	<meta name="description" content={ description }/>
+	<meta name="author" content={ appName }/>
+	<meta name="robots" content="index, follow"/>
+	if props.Path != "" {
+		<link rel="canonical" href={ baseURL + props.Path }/>
+	}
+	<!-- Open Graph -->
+	<meta property="og:title" content={ fullTitle }/>
+	<meta property="og:description" content={ description }/>
+	<meta property="og:type" content="website"/>
+	if props.Path != "" {
+		<meta property="og:url" content={ baseURL + props.Path }/>
+	}
+	<meta property="og:site_name" content={ appName }/>
+	<meta property="og:image" content={ image }/>
+	<meta property="og:image:width" content="1200"/>
+	<meta property="og:image:height" content="630"/>
+	<!-- Twitter -->
+	<meta name="twitter:card" content="summary_large_image"/>
+	<meta name="twitter:title" content={ fullTitle }/>
+	<meta name="twitter:description" content={ description }/>
+	<meta name="twitter:image" content={ image }/>
 }
