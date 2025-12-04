@@ -1,9 +1,6 @@
 # Build-Stage
-FROM golang:1.24.5-alpine AS build
+FROM golang:1.25 AS build
 WORKDIR /app
-
-# Install build dependencies
-RUN apk add --no-cache gcc musl-dev curl
 
 # Copy the source code
 COPY . .
@@ -14,13 +11,26 @@ RUN go install github.com/a-h/templ/cmd/templ@latest
 # Generate templ files
 RUN templ generate
 
-# Build Tailwind CSS (after templ generate so all classes are detected)
-RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-arm64 && \
-    chmod +x tailwindcss-linux-arm64 && \
-    ./tailwindcss-linux-arm64 -i ./assets/css/input.css -o ./assets/css/output.css --minify
+# Install build dependencies
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 
-# Build the application
-RUN CGO_ENABLED=1 GOOS=linux go build -o main ./main.go
+# Install Tailwind CSS standalone CLI
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+    TAILWIND_URL="https://github.com/tailwindlabs/tailwindcss/releases/download/v4.1.3/tailwindcss-linux-x64"; \
+    elif [ "$ARCH" = "aarch64" ]; then \
+    TAILWIND_URL="https://github.com/tailwindlabs/tailwindcss/releases/download/v4.1.3/tailwindcss-linux-arm64"; \
+    else \
+    echo "Unsupported architecture: $ARCH"; exit 1; \
+    fi && \
+    wget -O tailwindcss "$TAILWIND_URL" && \
+    chmod +x tailwindcss
+
+# Generate Tailwind CSS output
+RUN ./tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --minify
+
+# Build the application as a static binary
+RUN CGO_ENABLED=0 GOOS=linux go build -o main ./main.go
 
 # Deploy-Stage
 FROM alpine:3.20.2
@@ -32,10 +42,10 @@ RUN apk add --no-cache ca-certificates
 # Set environment variable for runtime
 ENV APP_ENV=production
 
-# Copy the binary from the build stage
+# Copy the binary (assets are embedded)
 COPY --from=build /app/main .
 
-# Expose the port your application runs on
+# Expose the port
 EXPOSE 8090
 
 # Command to run the application
