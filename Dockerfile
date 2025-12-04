@@ -2,6 +2,9 @@
 FROM golang:1.24.5-alpine AS build
 WORKDIR /app
 
+# Install build dependencies
+RUN apk add --no-cache gcc musl-dev curl
+
 # Copy the source code
 COPY . .
 
@@ -11,8 +14,10 @@ RUN go install github.com/a-h/templ/cmd/templ@latest
 # Generate templ files
 RUN templ generate
 
-# Install build dependencies
-RUN apk add --no-cache gcc musl-dev
+# Build Tailwind CSS (after templ generate so all classes are detected)
+RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-arm64 && \
+    chmod +x tailwindcss-linux-arm64 && \
+    ./tailwindcss-linux-arm64 -i ./assets/css/input.css -o ./assets/css/output.css --minify
 
 # Build the application
 RUN CGO_ENABLED=1 GOOS=linux go build -o main ./main.go
