@@ -1,9 +1,10 @@
-// templui component button - version: v0.84.0 installed by templui v0.84.0
+// templui component button - version: v0.101.0 installed by templui v0.101.0
+// 📚 Documentation: https://templui.io/docs/components/button
 package button
 
 import (
-	"strings"
 	"github.com/axadrn/axeladrian/utils"
+	"strings"
 )
 
 type Variant string
@@ -43,6 +44,7 @@ type Props struct {
 	Target     string
 	Disabled   bool
 	Type       Type
+	Form       string
 }
 
 templ Button(props ...Props) {
@@ -100,6 +102,9 @@ templ Button(props ...Props) {
 			if p.Type != "" {
 				type={ string(p.Type) }
 			}
+			if p.Form != "" {
+				form={ p.Form }
+			}
 			disabled?={ p.Disabled }
 			{ p.Attributes... }
 		>
@@ -111,7 +116,7 @@ templ Button(props ...Props) {
 func (b Props) variantClasses() string {
 	switch b.Variant {
 	case VariantDestructive:
-		return "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
+		return "bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
 	case VariantOutline:
 		return "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50"
 	case VariantSecondary:

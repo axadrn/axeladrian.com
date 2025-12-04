@@ -1,0 +1,109 @@
+package pages
+
+import (
+	"strconv"
+
+	"github.com/axadrn/axeladrian/internal/model"
+	"github.com/axadrn/axeladrian/ui/layouts"
+)
+
+templ BlogList(posts []*model.BlogPost) {
+	@layouts.BaseLayout() {
+		<main class="min-h-screen py-20 px-4">
+			<div class="max-w-2xl mx-auto">
+				<div class="mb-12">
+					<a href="/" class="text-sm text-muted-foreground hover:text-primary transition-colors">← back</a>
+					<h1 class="text-2xl font-bold mt-4">Blog</h1>
+				</div>
+				if len(posts) == 0 {
+					<p class="text-muted-foreground">No posts yet.</p>
+				} else {
+					<div class="flex flex-col gap-8">
+						for _, post := range posts {
+							@postCard(post)
+						}
+					</div>
+				}
+			</div>
+		</main>
+	}
+}
+
+templ BlogListByTag(posts []*model.BlogPost, tag string) {
+	@layouts.BaseLayout() {
+		<main class="min-h-screen py-20 px-4">
+			<div class="max-w-2xl mx-auto">
+				<div class="mb-12">
+					<a href="/blog" class="text-sm text-muted-foreground hover:text-primary transition-colors">← all posts</a>
+					<h1 class="text-2xl font-bold mt-4">Posts tagged: { tag }</h1>
+				</div>
+				if len(posts) == 0 {
+					<p class="text-muted-foreground">No posts with this tag.</p>
+				} else {
+					<div class="flex flex-col gap-8">
+						for _, post := range posts {
+							@postCard(post)
+						}
+					</div>
+				}
+			</div>
+		</main>
+	}
+}
+
+templ postCard(post *model.BlogPost) {
+	<article class="group">
+		<a href={ templ.SafeURL("/blog/" + post.Slug) } class="block">
+			<h2 class="text-lg font-semibold group-hover:text-primary transition-colors">{ post.Title }</h2>
+			<p class="text-sm text-muted-foreground mt-1">{ post.Description }</p>
+			<div class="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+				<time>{ post.Date.Format("Jan 2, 2006") }</time>
+				<span>{ formatReadTime(post.ReadTime) }</span>
+			</div>
+		</a>
+		if len(post.Tags) > 0 {
+			<div class="flex gap-2 mt-2">
+				for _, tag := range post.Tags {
+					<a href={ templ.SafeURL("/blog/tag/" + tag) } class="text-xs text-muted-foreground hover:text-primary transition-colors">
+						#{ tag }
+					</a>
+				}
+			</div>
+		}
+	</article>
+}
+
+templ BlogPost(post *model.BlogPost) {
+	@layouts.BaseLayout() {
+		<main class="min-h-screen py-20 px-4">
+			<article class="max-w-2xl mx-auto">
+				<div class="mb-8">
+					<a href="/blog" class="text-sm text-muted-foreground hover:text-primary transition-colors">← all posts</a>
+				</div>
+				<header class="mb-8">
+					<h1 class="text-3xl font-bold">{ post.Title }</h1>
+					<div class="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
+						<time>{ post.Date.Format("January 2, 2006") }</time>
+						<span>{ formatReadTime(post.ReadTime) }</span>
+					</div>
+					if len(post.Tags) > 0 {
+						<div class="flex gap-2 mt-3">
+							for _, tag := range post.Tags {
+								<a href={ templ.SafeURL("/blog/tag/" + tag) } class="text-xs bg-accent px-2 py-1 rounded hover:bg-accent/80 transition-colors">
+									{ tag }
+								</a>
+							}
+						</div>
+					}
+				</header>
+				<div class="prose prose-neutral dark:prose-invert max-w-none">
+					@templ.Raw(post.HTMLContent)
+				</div>
+			</article>
+		</main>
+	}
+}
+
+func formatReadTime(minutes int) string {
+	return strconv.Itoa(minutes) + " min read"
+}

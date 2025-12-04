@@ -1,0 +1,31 @@
+version: "3"
+
+tasks:
+  templ:
+    desc: Run templ with integrated server and hot reload
+    cmds:
+      - templ generate --watch --cmd="go run ." --proxy="http://localhost:8090" --open-browser=false
+
+  tailwind-clean:
+    desc: Clean tailwind output
+    cmds:
+      - tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --clean
+
+  tailwind-watch:
+    desc: Run tailwindcss in watch mode
+    cmds:
+      - tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --watch
+
+  dev:
+    desc: Start development server with hot reload
+    deps:
+      - tailwind-clean
+    cmds:
+      - task --parallel tailwind-watch templ
+
+  build:
+    desc: Build for production
+    cmds:
+      - tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --minify
+      - templ generate
+      - go build -o bin/server .

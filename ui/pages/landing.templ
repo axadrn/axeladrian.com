@@ -1,6 +1,10 @@
 package pages
 
-import "github.com/axadrn/axeladrian/ui/layouts"
+import (
+	"github.com/axadrn/axeladrian/ui/layouts"
+	"github.com/axadrn/axeladrian/ui/components/input"
+	"github.com/axadrn/axeladrian/ui/components/button"
+)
 
 templ Landing() {
 	@layouts.BaseLayout() {
@@ -10,31 +14,84 @@ templ Landing() {
 
 templ AboutSection() {
 	<section class="min-h-screen py-20 px-4 flex items-center justify-center">
-		<div class="max-w-2xl mx-auto">
-			<div class="flex flex-col gap-3 font-mono">
-				<img src="/assets/img/me.png" width="100" alt="Axel Adrian" class="profile-img"/>
-				<div class="definition">
-					<strong>Axel Adrian</strong>
+		<div class="max-w-md mx-auto">
+			<div class="flex flex-col items-center gap-6 font-mono text-center">
+				<img src="/assets/img/me.png" width="100" alt="Axel Adrian" class="rounded-full"/>
+				<div>
+					<h1 class="text-xl font-bold">Axel Adrian</h1>
+					<p class="text-muted-foreground">I do stuff.</p>
 				</div>
-				<p>
-					JS/TS, React, Svelte, Vue, Node, Flutter, Go, SQL, NoSQL 
-					<br/>
-					└─ Shipped it. Broke it. Fixed it.
-				</p>
-				<p>
-					Now: Go, open source, infra.
-					<a class="underline underline-offset-4 hover:text-rose-500" href="https://templui.io" target="_blank">templui.io</a> &amp;
-					<a class="underline underline-offset-4 hover:text-rose-500" href="https://deeploy.sh" target="_blank">deeploy.sh</a>.
-				</p>
-				<p>Building from anywhere. Ping me if you want something real.</p>
-				<p class="flex gap-2 text-primary">
-					<a class="underline underline-offset-4 hover:text-rose-500" href="mailto:hello@axeladrian.com">mail</a>
-					<span>/</span>
-					<a class="underline underline-offset-4 hover:text-rose-500" href="https://github.com/axadrn" target="_blank">github</a>
-					<span>/</span>
-					<a class="underline underline-offset-4 hover:text-rose-500" href="https://x.com/axadrn" target="_blank">x</a>
-				</p>
+				<div class="flex flex-wrap justify-center gap-x-2 text-sm text-muted-foreground">
+					<a class="hover:text-foreground transition-colors" href="https://templui.io" target="_blank">templui</a>
+					<span>·</span>
+					<a class="hover:text-foreground transition-colors" href="https://pro.templui.io" target="_blank">pro</a>
+					<span>·</span>
+					<a class="hover:text-foreground transition-colors" href="https://goilerplate.com" target="_blank">goilerplate</a>
+					<span>·</span>
+					<a class="hover:text-foreground transition-colors" href="https://deeploy.sh" target="_blank">deeploy</a>
+					<span>·</span>
+					<a class="hover:text-foreground transition-colors" href="/blog">blog</a>
+				</div>
+				<form id="subscribe-form" class="w-full max-w-xs">
+					<div class="flex gap-2">
+						@input.Input(input.Props{
+							Type:        input.TypeEmail,
+							Name:        "email",
+							Placeholder: "your@email.com",
+							Attributes:  templ.Attributes{"required": true},
+						})
+						@button.Button(button.Props{Type: button.TypeSubmit}) {
+							subscribe
+						}
+					</div>
+					<p id="subscribe-message" class="mt-2 text-sm"></p>
+				</form>
+				<div class="flex gap-x-2 text-sm text-muted-foreground">
+					<a class="hover:text-foreground transition-colors" href="https://github.com/axadrn" target="_blank">github</a>
+					<span>·</span>
+					<a class="hover:text-foreground transition-colors" href="https://x.com/axadrn" target="_blank">x</a>
+				</div>
 			</div>
 		</div>
+		@subscribeScript()
 	</section>
+}
+
+templ subscribeScript() {
+	<script>
+		document.getElementById('subscribe-form').addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const form = e.target;
+			const email = form.email.value;
+			const msg = document.getElementById('subscribe-message');
+			const btn = form.querySelector('button[type="submit"]');
+
+			btn.disabled = true;
+			btn.textContent = '...';
+
+			try {
+				const res = await fetch('/api/subscribe', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ email })
+				});
+				const data = await res.json();
+
+				if (data.success) {
+					msg.textContent = 'Subscribed!';
+					msg.className = 'mt-2 text-sm text-green-600';
+					form.email.value = '';
+				} else {
+					msg.textContent = data.error || 'Something went wrong';
+					msg.className = 'mt-2 text-sm text-red-600';
+				}
+			} catch (err) {
+				msg.textContent = 'Something went wrong';
+				msg.className = 'mt-2 text-sm text-red-600';
+			}
+
+			btn.disabled = false;
+			btn.textContent = 'subscribe';
+		});
+	</script>
 }
