@@ -1,9 +1,14 @@
 package layouts
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/axadrn/axeladrian/internal/ctxkeys"
 	"github.com/axadrn/axeladrian/ui/modules"
 )
+
+var buildTime = time.Now().Unix()
 
 type SEOProps struct {
 	Title       string
@@ -32,8 +37,7 @@ templ BaseLayout(props ...SEOProps) {
 			<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
 			<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
 			<!-- CSS -->
-			<link href="/assets/css/output.css" rel="stylesheet"/>
-			<link href="/assets/css/themes.css" rel="stylesheet"/>
+			<link href={ fmt.Sprintf("/assets/css/output.css?v=%d", buildTime) } rel="stylesheet"/>
 			<!-- Fonts -->
 			<link rel="preload" href="/assets/fonts/geist/geist-variable.woff2" as="font" type="font/woff2" crossorigin="anonymous"/>
 			<link rel="preload" href="/assets/fonts/geist/geist-mono-variable.woff2" as="font" type="font/woff2" crossorigin="anonymous"/>
